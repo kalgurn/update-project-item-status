@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
+import {execPath} from 'process'
 import {
   updateProjectItemStatus,
   mustGetOwnerTypeQuery,
@@ -190,6 +191,18 @@ describe('getStatusFieldData', () => {
 
     expect(statusField.id).toEqual('123')
   })
+  test('throws an error when no status field is found', async () => {
+    const fieldNodes = [
+      {
+        name: 'Not Status',
+        id: '123',
+        settings: '{"options":[{"id":"zzz","name":"Todo","name_html":"Todo"}]}'
+      }
+    ]
+    expect(() => {
+      getStatusFieldData(fieldNodes)
+    }).toThrow(`Status field not found.`)
+  })
 })
 describe('getStatusColumnIdFromSettings', () => {
   test('returns the status column id', async () => {
@@ -200,6 +213,22 @@ describe('getStatusColumnIdFromSettings', () => {
     const statusColumnId = getStatusColumnIdFromSettings(settings, status)
 
     expect(statusColumnId).toEqual('zzz')
+  })
+  test('throws an error when the status column is not found', async () => {
+    const settings =
+      '{"options":[{"id":"zzz","name":"Todo","name_html":"Todo"}]}'
+    const status = 'NotFound'
+
+    expect(() => {
+      getStatusColumnIdFromSettings(settings, status)
+    }).toThrow(`Status column ID not found in settings: ${settings}`)
+  })
+  test('throw an error if no options are found', async () => {
+    const settings = '{}'
+    const status = 'NotFound'
+    expect(() => {
+      getStatusColumnIdFromSettings(settings, status)
+    }).toThrow(`No options found.`)
   })
 })
 

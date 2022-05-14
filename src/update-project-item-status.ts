@@ -202,7 +202,7 @@ export function getStatusColumnIdFromSettings(
   const statusColumnId = options.find(option => option.name === status)?.id
 
   if (!statusColumnId) {
-    throw new Error(`Status column ID not found in settings.`)
+    throw new Error(`Status column ID not found in settings: ${settings}`)
   }
   return statusColumnId
 }
