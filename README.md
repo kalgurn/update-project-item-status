@@ -2,104 +2,102 @@
   <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
 </p>
 
-# Create a JavaScript Action using TypeScript
+## kalgurn/update-project-item-status
 
-Use this template to bootstrap the creation of a TypeScript action.:rocket:
+This actions was designed as a complimentary action for the [actions/add-to-project](https://github.com/actions/add-to-project). It will allow to change the status(column) on the new GitHub Projects(beta).
 
-This template includes compilation support, tests, a validation workflow, publishing, and versioning guidance.  
+Useful as a part of a workflow which creates a new items in a GitHub Projects(beta) so it can be placed in the desired column
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+## Usage
 
-## Create an action from this template
+Create a workflow which outputs an itemId for the desired item and specify the required fields.  
 
-Click the `Use this Template` and provide the new repo details for your action
+In the example below the newly created issues with a `bug` label would be added to a project and then the "Triage" status will be set to the resulted item.  
 
-## Code in Main
+```yaml
+name: Add bugs to bugs project
 
-> First, you'll need to have a reasonably modern version of `node` handy. This won't work with versions older than 9, for instance.
+on:
+  issues:
+    types:
+      - opened
 
-Install the dependencies  
-```bash
-$ npm install
+jobs:
+  add-to-project:
+    name: Add issue to project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/add-to-project@main
+        id: addItem
+        with:
+          project-url: https://github.com/orgs/<orgName>/projects/<projectNumber>
+          github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
+          labeled: bug, needs-triage
+          label-operator: OR
+
+      - uses: kalgurn/update-project-item-status@main
+        with:
+          project-url: https://github.com/orgs/<orgName>/projects/<projectNumber>
+          github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
+          item-id: ${{ steps.addItem.outputs.itemId }}
+          status: "Triage"
 ```
 
-Build the typescript and package it for distribution
-```bash
-$ npm run build && npm run package
+## Inputs
+
+- `project-url` __(required)__ is the URL of the GitHub project to add issues to.  
+_eg: https://github.com/orgs|users/<ownerName>/projects/<projectNumber>_
+
+- `github-token` __(required)__ is a personal access token with the `repo`, `write:org` and `read:org` scopes.  
+_See [Creating a PAT and adding it to your repository](#creating-a-pat-and-adding-it-to-your-repository) for more details_
+
+- `item-id` __(required)__ is an ID of the item which requires a status change.  
+_Usually obtained through an [API](https://docs.github.com/en/issues/trying-out-the-new-projects-experience/using-the-api-to-manage-projects#finding-information-about-items-in-a-project)_
+
+- `status` __(required)__ desired status to be set for the item. Must be an existing project status
+
+## Creating a PAT and adding it to your repository
+
+- create a new [personal access
+  token](https://github.com/settings/tokens/new) with `repo`, `write:org` and
+  `read:org` scopes  
+  _See [Creating a personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for more information_
+
+- add the newly created PAT as a repository secret, this secret will be referenced by the [github-token input](#github-token)  
+  _See [Encrypted secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository) for more information_
+
+## Development
+
+To get started contributing to this project, clone it and install dependencies.
+Note that this action runs in Node.js 16.x, so we recommend using that version
+of Node (see "engines" in this action's package.json for details).
+
+```shell
+> git clone https://github.com/kalgurn/update-project-item-status
+> cd add-to-project
+> npm install
 ```
 
-Run the tests :heavy_check_mark:  
-```bash
-$ npm test
+Or, use [GitHub Codespaces](https://github.com/features/codespaces).
 
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
-```
-
-## Change action.yml
-
-The action.yml defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
+See the [toolkit
+documentation](https://github.com/actions/toolkit/blob/master/README.md#packages)
+for the various packages used in building this action.
 
 ## Publish to a distribution branch
 
-Actions are run from GitHub repos so we will checkin the packed dist folder. 
+Actions are run from GitHub repositories, so we check in the packaged action in
+the "dist/" directory.
 
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
-```bash
-$ npm run package
-$ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
+```shell
+> npm run build
+> git add lib dist
+> git commit -a -m "Build and package"
+> git push origin releases/v1
 ```
 
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
+Now, a release can be created from the branch containing the built action.
 
-Your action is now published! :rocket: 
+# License
 
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
-
-```yaml
-uses: ./
-with:
-  milliseconds: 1000
-```
-
-See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:
-
-## Usage:
-
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action
+The scripts and documentation in this project are released under the [MIT License](LICENSE)
