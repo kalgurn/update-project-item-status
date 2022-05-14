@@ -1,11 +1,19 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Kostiantyn Kulbachnyi'
+description: 'TypeScript action to change GitHub Projects(beta) items status'
+author: 'kalgurn'
 inputs:
-  milliseconds: # change this
+  project-url:
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: 'URL of the project to add issues to'
+  github-token:
+    required: true
+    description: 'A GitHub personal access token with write access to the project'
+  item-id: 
+    required: true
+    description: 'An ID of the item which required a status change'
+  status:
+    required: true
+    description: 'A desired status for the target item'
 runs:
   using: 'node16'
   main: 'dist/index.js'
