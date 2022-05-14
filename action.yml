@@ -1,6 +1,8 @@
 name: 'Kostiantyn Kulbachnyi'
 description: 'TypeScript action to change GitHub Projects(beta) items status'
 author: 'kalgurn'
+branding:
+  icon: table
 inputs:
   project-url:
     required: true
