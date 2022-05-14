@@ -1,6 +1,6 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Kostiantyn Kulbachnyi'
+description: 'TypeScript action to change GitHub Projects(beta) items status'
+author: 'kalgurn'
 inputs:
   project-url:
     required: true

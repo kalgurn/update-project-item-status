@@ -6,7 +6,7 @@
 
 This actions was designed as a complimentary action for the [actions/add-to-project](https://github.com/actions/add-to-project). It will allow to change the status(column) on the new GitHub Projects(beta).
 
-Useful as a part of a workflow which creates a new items in a GitHub Projects(beta) so it can be placed in the desired column
+Useful as a part of a workflow which creates a new items in a GitHub Projects(beta) so they can be placed in the desired column
 
 ## Usage
 
