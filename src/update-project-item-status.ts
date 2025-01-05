@@ -8,13 +8,13 @@ const urlParse =
 
 interface ProjectNodeIDResponse {
   organization?: {
-    projectNext: {
+    projectV2: {
       id: string
     }
   }
 
   user?: {
-    projectNext: {
+    projectV2: {
       id: string
     }
   }
@@ -34,8 +34,8 @@ interface ProjectFieldNodeIDResponse {
 }
 
 interface ProjectUpdateItemFieldResponse {
-  updateProjectNextItemField: {
-    projectNextItem: {
+  updateProjectV2ItemField: {
+    projectV2Item: {
       id: string
     }
   }
@@ -92,7 +92,7 @@ export async function updateProjectItemStatus(): Promise<void> {
   const idResp = await octokit.graphql<ProjectNodeIDResponse>(
     `query getProject($ownerName: String!, $projectNumber: Int!) { 
           ${ownerTypeQuery}(login: $ownerName) {
-            projectNext(number: $projectNumber) {
+            projectV2(number: $projectNumber) {
               id
             }
           }
@@ -103,13 +103,13 @@ export async function updateProjectItemStatus(): Promise<void> {
     }
   )
 
-  const projectId = idResp[ownerTypeQuery]?.projectNext.id
+  const projectId = idResp[ownerTypeQuery]?.projectV2.id
   core.debug(`Project ID: ${projectId}`)
 
   const fieldResp = await octokit.graphql<ProjectFieldNodeIDResponse>(
     `query ($projectId: ID!) {
           node(id: $projectId) {
-            ... on ProjectNext {
+            ... on projectV2 {
               fields(first:20) {
                 nodes {
                   id
@@ -137,7 +137,7 @@ export async function updateProjectItemStatus(): Promise<void> {
 
   const updateResp = await octokit.graphql<ProjectUpdateItemFieldResponse>(
     `mutation ($projectId: ID!, $itemId: ID!, $statusFieldId: ID!, $statusColumnId: String!) {
-        updateProjectNextItemField(
+        updateProjectV2ItemField(
           input: {
             projectId: $projectId
             itemId: $itemId
@@ -145,7 +145,7 @@ export async function updateProjectItemStatus(): Promise<void> {
             value: $statusColumnId
           }
         ) {
-          projectNextItem {
+          projectV2Item {
             id
           }
         }
