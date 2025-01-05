@@ -84,7 +84,7 @@ describe('updateProjectItemStatus', () => {
         test: /getProject/,
         return: {
           organization: {
-            projectNext: {
+            projectV2: {
               id: 'project-next-id'
             }
           }
@@ -120,7 +120,7 @@ describe('updateProjectItemStatus', () => {
         test: /getProject/,
         return: {
           organization: {
-            projectNext: {
+            projectV2: {
               id: 'project-next-id'
             }
           }
@@ -144,7 +144,7 @@ describe('updateProjectItemStatus', () => {
         }
       },
       {
-        test: /updateProjectNextItemField/,
+        test: /updateProjectV2ItemField/,
         return: {
           id: 'item-id'
         }
