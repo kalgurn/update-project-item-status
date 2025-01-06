@@ -22,13 +22,23 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const update_project_item_status_1 = __nccwpck_require__(7093);
@@ -67,15 +77,28 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getStatusColumnIdFromOptions = exports.getStatusFieldData = exports.mustGetOwnerTypeQuery = exports.updateProjectItemStatus = void 0;
+exports.updateProjectItemStatus = updateProjectItemStatus;
+exports.mustGetOwnerTypeQuery = mustGetOwnerTypeQuery;
+exports.getStatusFieldData = getStatusFieldData;
+exports.getStatusColumnIdFromOptions = getStatusColumnIdFromOptions;
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 // TODO: Ensure this (and the Octokit client) works for non-github.com URLs, as well.
@@ -166,7 +189,6 @@ async function updateProjectItemStatus() {
     });
     core.debug(`Update response: ${JSON.stringify(updateResp)}`);
 }
-exports.updateProjectItemStatus = updateProjectItemStatus;
 function mustGetOwnerTypeQuery(ownerType) {
     const ownerTypeQuery = ownerType === 'orgs'
         ? 'organization'
@@ -178,7 +200,6 @@ function mustGetOwnerTypeQuery(ownerType) {
     }
     return ownerTypeQuery;
 }
-exports.mustGetOwnerTypeQuery = mustGetOwnerTypeQuery;
 function getStatusFieldData(fieldNodes) {
     const statusField = fieldNodes.find(field => field.name === 'Status');
     if (!statusField) {
@@ -186,7 +207,6 @@ function getStatusFieldData(fieldNodes) {
     }
     return statusField;
 }
-exports.getStatusFieldData = getStatusFieldData;
 function getStatusColumnIdFromOptions(options, status) {
     var _a;
     const statusColumnId = (_a = options.find(option => option.name === status)) === null || _a === void 0 ? void 0 : _a.id;
@@ -195,7 +215,6 @@ function getStatusColumnIdFromOptions(options, status) {
     }
     return statusColumnId;
 }
-exports.getStatusColumnIdFromOptions = getStatusColumnIdFromOptions;
 
 
 /***/ }),
