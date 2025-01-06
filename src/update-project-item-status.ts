@@ -140,9 +140,9 @@ export async function updateProjectItemStatus(): Promise<void> {
   core.debug(`Status column ID: ${statusColumnId}`)
 
   const updateResp = await octokit.graphql<ProjectUpdateItemFieldResponse>(
-    `mutation ($projectId: ID!, $itemId: ID!, $statusFieldId: ID!, $statusColumnId: ProjectV2FieldValue!) {
+    `mutation ($projectId: ID!, $itemId: ID!, $statusFieldId: ID!, $statusColumnId: String!) {
         updateProjectV2ItemFieldValue(
-          input: {projectId: $projectId, itemId: $itemId, fieldId: $statusFieldId, value: $statusColumnId}
+          input: {projectId: $projectId, itemId: $itemId, fieldId: $statusFieldId, value: {singleSelectOptionId: $statusColumnId}}
         ) {
           projectV2Item {
             id
