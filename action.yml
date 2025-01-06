@@ -17,5 +17,5 @@ inputs:
     required: true
     description: 'A desired status for the target item'
 runs:
-  using: 'node22'
+  using: 'node20'
   main: 'dist/index.js'
