@@ -47,10 +47,10 @@ interface StatusOption {
 }
 
 export async function updateProjectItemStatus(): Promise<void> {
-  const projectUrl = core.getInput('project-url', {required: true})
-  const ghToken = core.getInput('github-token', {required: true})
-  const itemId = core.getInput('item-id', {required: true})
-  const status = core.getInput('status', {required: true})
+  const projectUrl = core.getInput('project-url', { required: true })
+  const ghToken = core.getInput('github-token', { required: true })
+  const itemId = core.getInput('item-id', { required: true })
+  const status = core.getInput('status', { required: true })
 
   const octokit = github.getOctokit(ghToken)
   const urlMatch = projectUrl.match(urlParse)
@@ -167,8 +167,8 @@ export function mustGetOwnerTypeQuery(
     ownerType === 'orgs'
       ? 'organization'
       : ownerType === 'users'
-      ? 'user'
-      : null
+        ? 'user'
+        : null
 
   if (!ownerTypeQuery) {
     throw new Error(
