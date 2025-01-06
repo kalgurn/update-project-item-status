@@ -23,7 +23,7 @@ interface ProjectNodeIDResponse {
 interface ProjectFieldNodes {
   id: string
   name: string
-  settings: string
+  options: StatusOption[]
 }
 interface ProjectFieldNodeIDResponse {
   node: {
@@ -43,10 +43,7 @@ interface ProjectUpdateItemFieldResponse {
 interface StatusOption {
   id: string
   name: string
-  name_html: string
-}
-interface StatusOptions {
-  options: StatusOption[]
+  nameHTML: string
 }
 
 export async function updateProjectItemStatus(): Promise<void> {
@@ -108,26 +105,33 @@ export async function updateProjectItemStatus(): Promise<void> {
 
   const fieldResp = await octokit.graphql<ProjectFieldNodeIDResponse>(
     `query ($projectId: ID!) {
-          node(id: $projectId) {
-            ... on projectV2 {
-              fields(first:20) {
-                nodes {
+        node(id: $projectId) {
+          ... on ProjectV2 {
+            fields(first: 20) {
+              nodes {
+                ... on ProjectV2FieldCommon {
                   id
                   name
-                  settings
+                }
+                ... on ProjectV2SingleSelectField {
+                  options {
+                    name
+                    id
+                  }
                 }
               }
             }
           }
-        }`,
+        }
+      }`,
     {
       projectId
     }
   )
 
   const statusField = getStatusFieldData(fieldResp.node.fields.nodes)
-  const statusColumnId = getStatusColumnIdFromSettings(
-    statusField.settings,
+  const statusColumnId = getStatusColumnIdFromOptions(
+    statusField.options,
     status
   )
   const statusFieldId = statusField.id
@@ -136,14 +140,9 @@ export async function updateProjectItemStatus(): Promise<void> {
   core.debug(`Status column ID: ${statusColumnId}`)
 
   const updateResp = await octokit.graphql<ProjectUpdateItemFieldResponse>(
-    `mutation ($projectId: ID!, $itemId: ID!, $statusFieldId: ID!, $statusColumnId: String!) {
-        updateProjectV2ItemField(
-          input: {
-            projectId: $projectId
-            itemId: $itemId
-            fieldId: $statusFieldId
-            value: $statusColumnId
-          }
+    `mutation ($projectId: ID!, $itemId: ID!, $statusFieldId: ID!, $statusColumnId: ProjectV2FieldValue!) {
+        updateProjectV2ItemFieldValue(
+          input: {projectId: $projectId, itemId: $itemId, fieldId: $statusFieldId, value: $statusColumnId}
         ) {
           projectV2Item {
             id
@@ -190,19 +189,14 @@ export function getStatusFieldData(
   return statusField
 }
 
-export function getStatusColumnIdFromSettings(
-  settings: string,
+export function getStatusColumnIdFromOptions(
+  options: StatusOption[],
   status: string
 ): string {
-  const settingsJson: StatusOptions = JSON.parse(settings)
-  const options = settingsJson.options
-  if (!options) {
-    throw new Error(`No options found.`)
-  }
   const statusColumnId = options.find(option => option.name === status)?.id
 
   if (!statusColumnId) {
-    throw new Error(`Status column ID not found in settings: ${settings}`)
+    throw new Error(`Status column ID not found in options`)
   }
   return statusColumnId
 }

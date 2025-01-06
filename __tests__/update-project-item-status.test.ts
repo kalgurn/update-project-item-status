@@ -5,8 +5,9 @@ import {
   updateProjectItemStatus,
   mustGetOwnerTypeQuery,
   getStatusFieldData,
-  getStatusColumnIdFromSettings
+  getStatusColumnIdFromOptions
 } from '../src/update-project-item-status'
+
 
 describe('updateProjectItemStatus', () => {
   let outputs: Record<string, string>
@@ -99,8 +100,8 @@ describe('updateProjectItemStatus', () => {
                 {
                   id: 'xxx',
                   name: 'Status',
-                  settings:
-                    '{"options":[{"id":"zzz","name":"Todo","name_html":"Todo"}]}'
+                  options:
+                    [{"id":"zzz","name":"Todo","name_html":"Todo"}]
                 }
               ]
             }
@@ -110,7 +111,7 @@ describe('updateProjectItemStatus', () => {
     )
 
     await expect(updateProjectItemStatus()).rejects.toThrow(
-      'Status column ID not found in settings'
+      'Status column ID not found in options'
     )
   })
 
@@ -135,8 +136,7 @@ describe('updateProjectItemStatus', () => {
                 {
                   id: 'xxx',
                   name: 'Status',
-                  settings:
-                    '{"options":[{"id":"zzz","name":"status","name_html":"status"}]}'
+                  options:[{"id":"zzz","name":"status","name_html":"status"}]
                 }
               ]
             }
@@ -183,7 +183,7 @@ describe('getStatusFieldData', () => {
       {
         name: 'Status',
         id: '123',
-        settings: '{"options":[{"id":"zzz","name":"Todo","name_html":"Todo"}]}'
+        options: [{"id":"zzz","name":"Todo","nameHTML":"Todo"}]
       }
     ]
 
@@ -196,7 +196,7 @@ describe('getStatusFieldData', () => {
       {
         name: 'Not Status',
         id: '123',
-        settings: '{"options":[{"id":"zzz","name":"Todo","name_html":"Todo"}]}'
+        options: [{"id":"zzz","name":"Todo","nameHTML":"Todo"}]
       }
     ]
     expect(() => {
@@ -206,29 +206,31 @@ describe('getStatusFieldData', () => {
 })
 describe('getStatusColumnIdFromSettings', () => {
   test('returns the status column id', async () => {
-    const settings =
-      '{"options":[{"id":"zzz","name":"Todo","name_html":"Todo"}]}'
+    const options = [{"id":"zzz","name":"Todo","nameHTML":"Todo"}]
     const status = 'Todo'
 
-    const statusColumnId = getStatusColumnIdFromSettings(settings, status)
+    const statusColumnId = getStatusColumnIdFromOptions(options, status)
 
     expect(statusColumnId).toEqual('zzz')
   })
   test('throws an error when the status column is not found', async () => {
-    const settings =
-      '{"options":[{"id":"zzz","name":"Todo","name_html":"Todo"}]}'
+    const options = [{"id":"zzz","name":"Todo","nameHTML":"Todo"}]
     const status = 'NotFound'
 
     expect(() => {
-      getStatusColumnIdFromSettings(settings, status)
-    }).toThrow(`Status column ID not found in settings: ${settings}`)
+      getStatusColumnIdFromOptions(options, status)
+    }).toThrow(`Status column ID not found in options`)
   })
   test('throw an error if no options are found', async () => {
-    const settings = '{}'
+    const options: {
+      id: string
+      name: string
+      nameHTML: string
+    }[] = []
     const status = 'NotFound'
     expect(() => {
-      getStatusColumnIdFromSettings(settings, status)
-    }).toThrow(`No options found.`)
+      getStatusColumnIdFromOptions(options, status)
+    }).toThrow(`Status column ID not found in options`)
   })
 })
 
