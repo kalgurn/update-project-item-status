@@ -4,9 +4,9 @@
 
 ## kalgurn/update-project-item-status
 
-This actions was designed as a complimentary action for the [actions/add-to-project](https://github.com/actions/add-to-project). It will allow to change the status(column) on the new GitHub Projects(beta).
+This actions was designed as a complimentary action for the [actions/add-to-project](https://github.com/actions/add-to-project). It will allow to change the status(column) on the new GitHub Projects.
 
-Useful as a part of a workflow which creates a new items in a GitHub Projects(beta) so they can be placed in the desired column
+Useful as a part of a workflow which creates a new items in a GitHub Projects so they can be placed in the desired column
 
 ## Usage
 
@@ -93,7 +93,7 @@ the "dist/" directory.
 > npm run build
 > git add lib dist
 > git commit -a -m "Build and package"
-> git push origin releases/v1
+> git push origin release/0.0.x
 ```
 
 Now, a release can be created from the branch containing the built action.

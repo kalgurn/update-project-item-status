@@ -1,5 +1,5 @@
-name: 'Update GitHub Project(beta) item status'
-description: 'TypeScript action to change GitHub Projects(beta) items status'
+name: 'Update GitHub Projects item status'
+description: 'TypeScript action to change GitHub Projects items status'
 author: 'kalgurn'
 branding:
   icon: table
@@ -17,5 +17,5 @@ inputs:
     required: true
     description: 'A desired status for the target item'
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'

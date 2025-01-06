@@ -1,8 +1,8 @@
 {
   "name": "update-project-item-status",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": true,
-  "description": "TypeScript action to change GitHub Projects(beta) items status",
+  "description": "TypeScript action to change GitHub Projects items status",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
