@@ -75,7 +75,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getStatusColumnIdFromSettings = exports.getStatusFieldData = exports.mustGetOwnerTypeQuery = exports.updateProjectItemStatus = void 0;
+exports.getStatusColumnIdFromOptions = exports.getStatusFieldData = exports.mustGetOwnerTypeQuery = exports.updateProjectItemStatus = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 // TODO: Ensure this (and the Octokit client) works for non-github.com URLs, as well.
@@ -124,33 +124,35 @@ async function updateProjectItemStatus() {
     const projectId = (_e = idResp[ownerTypeQuery]) === null || _e === void 0 ? void 0 : _e.projectV2.id;
     core.debug(`Project ID: ${projectId}`);
     const fieldResp = await octokit.graphql(`query ($projectId: ID!) {
-          node(id: $projectId) {
-            ... on projectV2 {
-              fields(first:20) {
-                nodes {
+        node(id: $projectId) {
+          ... on ProjectV2 {
+            fields(first: 20) {
+              nodes {
+                ... on ProjectV2FieldCommon {
                   id
                   name
-                  settings
+                }
+                ... on ProjectV2SingleSelectField {
+                  options {
+                    name
+                    id
+                  }
                 }
               }
             }
           }
-        }`, {
+        }
+      }`, {
         projectId
     });
     const statusField = getStatusFieldData(fieldResp.node.fields.nodes);
-    const statusColumnId = getStatusColumnIdFromSettings(statusField.settings, status);
+    const statusColumnId = getStatusColumnIdFromOptions(statusField.options, status);
     const statusFieldId = statusField.id;
     core.debug(`Status field ID: ${statusFieldId}`);
     core.debug(`Status column ID: ${statusColumnId}`);
-    const updateResp = await octokit.graphql(`mutation ($projectId: ID!, $itemId: ID!, $statusFieldId: ID!, $statusColumnId: String!) {
-        updateProjectV2ItemField(
-          input: {
-            projectId: $projectId
-            itemId: $itemId
-            fieldId: $statusFieldId
-            value: $statusColumnId
-          }
+    const updateResp = await octokit.graphql(`mutation ($projectId: ID!, $itemId: ID!, $statusFieldId: ID!, $statusColumnId: ProjectV2FieldValue!) {
+        updateProjectV2ItemFieldValue(
+          input: {projectId: $projectId, itemId: $itemId, fieldId: $statusFieldId, value: $statusColumnId}
         ) {
           projectV2Item {
             id
@@ -185,20 +187,15 @@ function getStatusFieldData(fieldNodes) {
     return statusField;
 }
 exports.getStatusFieldData = getStatusFieldData;
-function getStatusColumnIdFromSettings(settings, status) {
+function getStatusColumnIdFromOptions(options, status) {
     var _a;
-    const settingsJson = JSON.parse(settings);
-    const options = settingsJson.options;
-    if (!options) {
-        throw new Error(`No options found.`);
-    }
     const statusColumnId = (_a = options.find(option => option.name === status)) === null || _a === void 0 ? void 0 : _a.id;
     if (!statusColumnId) {
-        throw new Error(`Status column ID not found in settings: ${settings}`);
+        throw new Error(`Status column ID not found in options`);
     }
     return statusColumnId;
 }
-exports.getStatusColumnIdFromSettings = getStatusColumnIdFromSettings;
+exports.getStatusColumnIdFromOptions = getStatusColumnIdFromOptions;
 
 
 /***/ }),

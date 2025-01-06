@@ -8,7 +8,6 @@ import {
   getStatusColumnIdFromOptions
 } from '../src/update-project-item-status'
 
-
 describe('updateProjectItemStatus', () => {
   let outputs: Record<string, string>
 
@@ -100,8 +99,7 @@ describe('updateProjectItemStatus', () => {
                 {
                   id: 'xxx',
                   name: 'Status',
-                  options:
-                    [{"id":"zzz","name":"Todo","name_html":"Todo"}]
+                  options: [{id: 'zzz', name: 'Todo', name_html: 'Todo'}]
                 }
               ]
             }
@@ -136,7 +134,7 @@ describe('updateProjectItemStatus', () => {
                 {
                   id: 'xxx',
                   name: 'Status',
-                  options:[{"id":"zzz","name":"status","name_html":"status"}]
+                  options: [{id: 'zzz', name: 'status', name_html: 'status'}]
                 }
               ]
             }
@@ -183,7 +181,7 @@ describe('getStatusFieldData', () => {
       {
         name: 'Status',
         id: '123',
-        options: [{"id":"zzz","name":"Todo","nameHTML":"Todo"}]
+        options: [{id: 'zzz', name: 'Todo', nameHTML: 'Todo'}]
       }
     ]
 
@@ -196,7 +194,7 @@ describe('getStatusFieldData', () => {
       {
         name: 'Not Status',
         id: '123',
-        options: [{"id":"zzz","name":"Todo","nameHTML":"Todo"}]
+        options: [{id: 'zzz', name: 'Todo', nameHTML: 'Todo'}]
       }
     ]
     expect(() => {
@@ -206,7 +204,7 @@ describe('getStatusFieldData', () => {
 })
 describe('getStatusColumnIdFromSettings', () => {
   test('returns the status column id', async () => {
-    const options = [{"id":"zzz","name":"Todo","nameHTML":"Todo"}]
+    const options = [{id: 'zzz', name: 'Todo', nameHTML: 'Todo'}]
     const status = 'Todo'
 
     const statusColumnId = getStatusColumnIdFromOptions(options, status)
@@ -214,7 +212,7 @@ describe('getStatusColumnIdFromSettings', () => {
     expect(statusColumnId).toEqual('zzz')
   })
   test('throws an error when the status column is not found', async () => {
-    const options = [{"id":"zzz","name":"Todo","nameHTML":"Todo"}]
+    const options = [{id: 'zzz', name: 'Todo', nameHTML: 'Todo'}]
     const status = 'NotFound'
 
     expect(() => {
