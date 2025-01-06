@@ -8,13 +8,13 @@ const urlParse =
 
 interface ProjectNodeIDResponse {
   organization?: {
-    projectNext: {
+    projectV2: {
       id: string
     }
   }
 
   user?: {
-    projectNext: {
+    projectV2: {
       id: string
     }
   }
@@ -23,7 +23,7 @@ interface ProjectNodeIDResponse {
 interface ProjectFieldNodes {
   id: string
   name: string
-  settings: string
+  options: StatusOption[]
 }
 interface ProjectFieldNodeIDResponse {
   node: {
@@ -34,8 +34,8 @@ interface ProjectFieldNodeIDResponse {
 }
 
 interface ProjectUpdateItemFieldResponse {
-  updateProjectNextItemField: {
-    projectNextItem: {
+  updateProjectV2ItemField: {
+    projectV2Item: {
       id: string
     }
   }
@@ -43,10 +43,7 @@ interface ProjectUpdateItemFieldResponse {
 interface StatusOption {
   id: string
   name: string
-  name_html: string
-}
-interface StatusOptions {
-  options: StatusOption[]
+  nameHTML: string
 }
 
 export async function updateProjectItemStatus(): Promise<void> {
@@ -92,7 +89,7 @@ export async function updateProjectItemStatus(): Promise<void> {
   const idResp = await octokit.graphql<ProjectNodeIDResponse>(
     `query getProject($ownerName: String!, $projectNumber: Int!) { 
           ${ownerTypeQuery}(login: $ownerName) {
-            projectNext(number: $projectNumber) {
+            projectV2(number: $projectNumber) {
               id
             }
           }
@@ -103,31 +100,38 @@ export async function updateProjectItemStatus(): Promise<void> {
     }
   )
 
-  const projectId = idResp[ownerTypeQuery]?.projectNext.id
+  const projectId = idResp[ownerTypeQuery]?.projectV2.id
   core.debug(`Project ID: ${projectId}`)
 
   const fieldResp = await octokit.graphql<ProjectFieldNodeIDResponse>(
     `query ($projectId: ID!) {
-          node(id: $projectId) {
-            ... on ProjectNext {
-              fields(first:20) {
-                nodes {
+        node(id: $projectId) {
+          ... on ProjectV2 {
+            fields(first: 20) {
+              nodes {
+                ... on ProjectV2FieldCommon {
                   id
                   name
-                  settings
+                }
+                ... on ProjectV2SingleSelectField {
+                  options {
+                    name
+                    id
+                  }
                 }
               }
             }
           }
-        }`,
+        }
+      }`,
     {
       projectId
     }
   )
 
   const statusField = getStatusFieldData(fieldResp.node.fields.nodes)
-  const statusColumnId = getStatusColumnIdFromSettings(
-    statusField.settings,
+  const statusColumnId = getStatusColumnIdFromOptions(
+    statusField.options,
     status
   )
   const statusFieldId = statusField.id
@@ -137,15 +141,10 @@ export async function updateProjectItemStatus(): Promise<void> {
 
   const updateResp = await octokit.graphql<ProjectUpdateItemFieldResponse>(
     `mutation ($projectId: ID!, $itemId: ID!, $statusFieldId: ID!, $statusColumnId: String!) {
-        updateProjectNextItemField(
-          input: {
-            projectId: $projectId
-            itemId: $itemId
-            fieldId: $statusFieldId
-            value: $statusColumnId
-          }
+        updateProjectV2ItemFieldValue(
+          input: {projectId: $projectId, itemId: $itemId, fieldId: $statusFieldId, value: {singleSelectOptionId: $statusColumnId}}
         ) {
-          projectNextItem {
+          projectV2Item {
             id
           }
         }
@@ -190,19 +189,14 @@ export function getStatusFieldData(
   return statusField
 }
 
-export function getStatusColumnIdFromSettings(
-  settings: string,
+export function getStatusColumnIdFromOptions(
+  options: StatusOption[],
   status: string
 ): string {
-  const settingsJson: StatusOptions = JSON.parse(settings)
-  const options = settingsJson.options
-  if (!options) {
-    throw new Error(`No options found.`)
-  }
   const statusColumnId = options.find(option => option.name === status)?.id
 
   if (!statusColumnId) {
-    throw new Error(`Status column ID not found in settings: ${settings}`)
+    throw new Error(`Status column ID not found in options`)
   }
   return statusColumnId
 }
